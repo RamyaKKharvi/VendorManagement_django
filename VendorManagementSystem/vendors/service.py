@@ -1,15 +1,16 @@
-from .models import PurchaseOrderModel
-from django.db.models import F, Avg, Count, ExpressionWrapper, DurationField
+from vendors.models import PurchaseOrderModel
+from django.db.models import F, Avg, ExpressionWrapper, DurationField
+from vendors.config import PurchaseOrderStatusChoices
 
 
 def calculate_on_time_delivery_rate(vendor_id):
     completed_pos = PurchaseOrderModel.objects.filter(
-        status="completed", vendor=vendor_id
+        status=PurchaseOrderStatusChoices.COMPLETED, vendor=vendor_id
     )
     total_completed_pos = completed_pos.count()
     if total_completed_pos > 0:
         on_time_count = completed_pos.filter(
-            delivery_date__lte=F("acknowledgment_date")
+            acknowledgment_date__lte=F("delivery_date")
         ).count()
         return (on_time_count / total_completed_pos) * 100
     else:
@@ -41,17 +42,17 @@ def calculate_average_response_time(vendor_id):
         .get("avg_response_time", 0)
     )
     if response_time:
-        return response_time.total_seconds() / 3600  # Convert to hours
+        return response_time.total_seconds()
     else:
         return 0
 
 
 def calculate_fulfillment_rate(vendor_id):
-    total_pos = PurchaseOrderModel.objects.filter(
-        status="completed", vendor=vendor_id
-    ).count()
+    total_pos = PurchaseOrderModel.objects.filter(vendor=vendor_id).count()
     if total_pos > 0:
-        fulfilled_count = PurchaseOrderModel.objects.filter(status="completed").count()
+        fulfilled_count = PurchaseOrderModel.objects.filter(
+            vendor=vendor_id, status=PurchaseOrderStatusChoices.COMPLETED
+        ).count()
         return (fulfilled_count / total_pos) * 100
     else:
         return 0

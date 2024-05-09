@@ -1,10 +1,11 @@
 from django.contrib import admin
-from .models import VendorModel, PurchaseOrderModel, HistoricalPerformanceModel
+from vendors.models import VendorModel, PurchaseOrderModel, HistoricalPerformanceModel
 
 
 @admin.register(VendorModel)
 class VendorAdmin(admin.ModelAdmin):
     list_display = [
+        "id",
         "name",
         "contact_details",
         "address",
@@ -19,6 +20,7 @@ class VendorAdmin(admin.ModelAdmin):
 @admin.register(PurchaseOrderModel)
 class PurchaseOrderAdmin(admin.ModelAdmin):
     list_display = [
+        "id",
         "po_number",
         "vendor",
         "order_date",

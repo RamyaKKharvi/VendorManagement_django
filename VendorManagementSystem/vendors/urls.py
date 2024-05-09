@@ -1,5 +1,5 @@
 from django.urls import path, include
-from . import views
+from vendors import views
 from rest_framework.routers import DefaultRouter
 
 router = DefaultRouter()
@@ -11,7 +11,7 @@ router.register(
 urlpatterns = [
     path("", include(router.urls)),
     path(
-        "vendors/<int:vendor_id>/performance/",
+        "vendors/<int:id>/performance/",
         views.VendorPerformance.as_view({"get": "retrieve"}),
     ),
 ]
