@@ -12,7 +12,7 @@ def calculate_on_time_delivery_rate(vendor_id):
         on_time_count = completed_pos.filter(
             acknowledgment_date__lte=F("delivery_date")
         ).count()
-        return (on_time_count / total_completed_pos) * 100
+        return round((on_time_count / total_completed_pos) * 100, 2)
     else:
         return 0
 
@@ -25,7 +25,7 @@ def calculate_quality_rating_avg(vendor_id):
         .aggregate(avg_rating=Avg("quality_rating"))
         .get("avg_rating", 0)
     )
-    return quality_rating_avg
+    return round(quality_rating_avg, 2)
 
 
 def calculate_average_response_time(vendor_id):
@@ -42,7 +42,7 @@ def calculate_average_response_time(vendor_id):
         .get("avg_response_time", 0)
     )
     if response_time:
-        return response_time.total_seconds()
+        return round(response_time.total_seconds(), 2)
     else:
         return 0
 
@@ -53,6 +53,6 @@ def calculate_fulfillment_rate(vendor_id):
         fulfilled_count = PurchaseOrderModel.objects.filter(
             vendor=vendor_id, status=PurchaseOrderStatusChoices.COMPLETED
         ).count()
-        return (fulfilled_count / total_pos) * 100
+        return round((fulfilled_count / total_pos) * 100, 2)
     else:
         return 0

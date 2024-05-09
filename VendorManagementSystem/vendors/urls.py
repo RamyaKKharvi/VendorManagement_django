@@ -8,10 +8,15 @@ router.register(
     "purchase_orders", viewset=views.PurchaseOrder, basename="purchase-order"
 )
 
+
 urlpatterns = [
     path("", include(router.urls)),
     path(
         "vendors/<int:id>/performance/",
         views.VendorPerformance.as_view({"get": "retrieve"}),
+    ),
+    path(
+        "purchase_orders/<int:id>/acknowledge/",
+        views.PurchaseOrderAcknowledgment.as_view({"post": "create"}),
     ),
 ]

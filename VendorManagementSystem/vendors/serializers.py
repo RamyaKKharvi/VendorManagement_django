@@ -1,14 +1,7 @@
-import datetime
-
 from rest_framework import serializers
-from vendors.models import VendorModel, PurchaseOrderModel, HistoricalPerformanceModel
+from vendors.models import VendorModel, PurchaseOrderModel
 from vendors.config import PurchaseOrderStatusChoices
-from vendors.service import (
-    calculate_on_time_delivery_rate,
-    calculate_quality_rating_avg,
-    calculate_average_response_time,
-    calculate_fulfillment_rate,
-)
+from vendors.signals import vendor_signal
 
 
 class VendorModelSerializer(serializers.ModelSerializer):
@@ -56,32 +49,14 @@ class PurchaseOrderModelSerializer(serializers.ModelSerializer):
         if (
             instance.status != validated_data["status"]
             and validated_data["status"] == PurchaseOrderStatusChoices.COMPLETED.value
+            and validated_data["acknowledgment_date"] is not None
         ):
             super().update(instance, validated_data)
 
-            vendor_obj = instance.vendor
-            vendor_obj.on_time_delivery_rate = calculate_on_time_delivery_rate(
-                vendor_id=vendor_obj.id
+            vendor_signal.send(
+                sender=None,
+                vendor=instance.vendor,
             )
-            vendor_obj.quality_rating_avg = calculate_quality_rating_avg(
-                vendor_id=vendor_obj.id
-            )
-            vendor_obj.average_response_time = calculate_average_response_time(
-                vendor_id=vendor_obj.id
-            )
-            vendor_obj.fulfillment_rate = calculate_fulfillment_rate(
-                vendor_id=vendor_obj.id
-            )
-            performance_obj = HistoricalPerformanceModel(
-                vendor=vendor_obj,
-                date=datetime.datetime.now(),
-                on_time_delivery_rate=vendor_obj.on_time_delivery_rate,
-                average_response_time=vendor_obj.average_response_time,
-                quality_rating_avg=vendor_obj.quality_rating_avg,
-                fulfillment_rate=vendor_obj.fulfillment_rate,
-            )
-            performance_obj.save()
-            vendor_obj.save()
 
         else:
             super().update(instance, validated_data)
