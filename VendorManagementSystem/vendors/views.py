@@ -27,6 +27,13 @@ class PurchaseOrder(ModelViewSet):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        vendor_id = self.request.GET.get("vendor_id")
+        if vendor_id:
+            queryset = queryset.filter(vendor_id=vendor_id)
+        return queryset
+
 
 class VendorPerformance(ReadOnlyModelViewSet):
     queryset = VendorModel.objects.all()

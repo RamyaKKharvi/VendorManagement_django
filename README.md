@@ -13,3 +13,5 @@ Project built using Django
 5. Run `python manage.py migrate` command to create database table.
 6. Create superuser using `python manage.py createsuperuser`
 7. Run server `python manage.py runserver`
+
+#### For Api endpoint reference refer API_documentation PDF file which resides inside VendorManagement_django folder.

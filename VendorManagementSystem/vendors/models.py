@@ -1,5 +1,4 @@
 import random
-
 from django.db import models
 from vendors.config import PurchaseOrderStatusChoices
 

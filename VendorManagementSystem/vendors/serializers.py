@@ -43,6 +43,8 @@ class PurchaseOrderModelSerializer(serializers.ModelSerializer):
         ]
 
     def validate(self, attrs):
+        if not attrs["items"]:
+            raise serializers.ValidationError({"error": "items must not be null/empty"})
         return super().validate(attrs)
 
     def update(self, instance, validated_data):
@@ -51,6 +53,9 @@ class PurchaseOrderModelSerializer(serializers.ModelSerializer):
             and validated_data["status"] == PurchaseOrderStatusChoices.COMPLETED.value
             and validated_data["acknowledgment_date"] is not None
         ):
+            # If the below super method is called above the if condition,
+            # then the instance status get updated to same as the incoming validated status data
+            # and if condition produces wrong result
             super().update(instance, validated_data)
 
             vendor_signal.send(
